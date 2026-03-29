@@ -5,50 +5,49 @@
 </head>
 <body>
 
-<h1>Ideat</h1>
+  <h1>Ideat</h1>
 
-{% if session.username %}
-  <p>Kirjautunut käyttäjänä: {{ session.username }}</p>
-  <a href="/logout">Kirjaudu ulos</a>
-{% else %}
-  <a href="/login">Kirjaudu sisään</a>
-  <a href="/register">Rekisteröidy</a>
-{% endif %}
+  {% if session.get("username") %}
+    <p>Kirjautunut käyttäjänä: {{ session["username"] }}</p>
+    <a href="/logout">Kirjaudu ulos</a>
+  {% else %}
+    <a href="/login">Kirjaudu sisään</a>
+    <a href="/register">Rekisteröidy</a>
+  {% endif %}
 
-<br><br>
+  <br><br>
 
-<a href="/temp">Lisää uusi idea</a>
+  <a href="/temp">Lisää uusi idea</a>
 
-<hr>
+  <hr>
 
-<form action="/" method="get">
-  <input type="text" name="q" placeholder="Hae ideoita" value="{{ q }}">
-  <input type="submit" value="Hae">
-</form>
+  <form action="/" method="get">
+    <input type="text" name="q" placeholder="Hae ideoita" value="{{ q }}">
+    <input type="submit" value="Hae">
+  </form>
 
-<hr>
+  <hr>
 
-{% for idea in ideas %}
-  <div style="margin-bottom: 30px;">
-    <h2>{{ idea[1] }}</h2>
-    <p><strong>Julkaisija:</strong> {{ idea[5] }}</p>
-    <p>{{ idea[2] }}</p>
+  {% for idea in ideas %}
+    <div style="margin-bottom: 30px;">
+      <h2>{{ idea["title"] }}</h2>
+      <p><strong>Julkaisija:</strong> {{ idea["username"] }}</p>
+      <p>{{ idea["description"] }}</p>
 
-    {% if idea[3] %}
-      <img src="{{ url_for('static', filename='uploads/' + idea[3]) }}" width="300">
-    {% endif %}
+      {% if idea["filename"] %}
+        <img src="{{ url_for('static', filename='uploads/' + idea['filename']) }}" width="300">
+      {% endif %}
 
-    {% if session.get("user_id") == idea[4] %}
-      <div>
-        <a href="/edit/{{ idea[0] }}">Muokkaa</a>
-
-        <form action="/delete/{{ idea[0] }}" method="post" style="display:inline;">
-          <input type="submit" value="Poista">
-        </form>
-      </div>
-    {% endif %}
-  </div>
-{% endfor %}
+      {% if session.get("user_id") == idea["user_id"] %}
+        <div>
+          <a href="/edit/{{ idea['id'] }}">Muokkaa</a>
+          <form action="/delete/{{ idea['id'] }}" method="post" style="display:inline;">
+            <input type="submit" value="Poista">
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
 
 </body>
 </html>

@@ -1,6 +1,7 @@
-CREATE TABLE visits (
-    id INTEGER PRIMARY KEY,
-    visited_at TEXT
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password_hash TEXT
 );
 
 CREATE TABLE IF NOT EXISTS ideas (
@@ -9,10 +10,5 @@ CREATE TABLE IF NOT EXISTS ideas (
     description TEXT,
     filename TEXT,
     user_id INTEGER,
-);
-
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    username TEXT UNIQUE,
-    password_hash TEXT
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
