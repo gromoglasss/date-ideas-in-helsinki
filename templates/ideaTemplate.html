@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Valinta</title>
+</head>
+
+<body>
+  <h2>{{ title }}</h2>
+  <p>
+    Kuvaus: <br/>
+    {{ message }}
+  </p>
+  <img src="{{ url_for('static', filename='uploads/' + filename) }}" width="300">
+</body>
+
+</html>

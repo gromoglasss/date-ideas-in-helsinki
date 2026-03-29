@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lisää idean</title>
+</head>
+<body>
+
+  <form action="/add" method="post" enctype="multipart/form-data">
+    <p>Lisää kuva:</p>
+    <input type="file" name="photo" accept="image/*" required>
+
+    <p>Lisää otsikko:</p>
+    <textarea name="title" rows="3" cols="50"></textarea>
+
+    <p>Lisää kuvaus:</p>
+    <textarea name="message" rows="3" cols="50"></textarea>
+
+    <br><br>
+    <input type="submit" value="Lähetä" />
+  </form>
+
+</body>
+</html>
