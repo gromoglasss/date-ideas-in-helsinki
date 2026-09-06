@@ -16,3 +16,5 @@
 * Pääset muokkaamaan ja poistamaan omat ideasi päänäkymästä.
 * Voit etsiä ideoita hakukentän avulla.
 * Voit kirjautua ulos halutessasi painamalla "kirjaudu ulos" nappia. 
+
+(en suorittanut kurssia viime periodissa niin jatkan samaa projektia tässä periodissa)
