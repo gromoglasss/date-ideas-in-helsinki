@@ -8,6 +8,49 @@
 * Käyttäjä pystyy valitsemaan idealle yhden tai useamman luokittelun. Mahdolliset luokat ovat tietokannassa.
 * Sovelluksessa on pääasiallisen tietokohteen lisäksi toissijainen idea, joka täydentää pääasiallista ideaa. Käyttäjä pystyy lisäämään toissijaisia ideoita omiin ja muiden käyttäjien ideoihin liittyen.
 
+## Sovelluksen käynnistäminen paikallisesti
+
+Tarvitset Python 3:n ja Gitin.
+
+1. Kloonaa repositorio ja siirry projektikansioon:
+
+   ```bash
+   git clone https://github.com/gromoglasss/date-ideas-in-helsinki.git
+   cd date-ideas-in-helsinki
+   ```
+
+2. Luo virtuaaliympäristö:
+
+   ```bash
+   python -m venv .venv
+   ```
+
+3. Aktivoi virtuaaliympäristö.
+
+   Windows PowerShell:
+
+   ```powershell
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+   macOS/Linux:
+
+   ```bash
+   source .venv/bin/activate
+   ```
+
+4. Asenna Flask ja käynnistä sovellus:
+
+   ```bash
+   python -m pip install Flask
+   python -m flask --app app run --debug
+   ```
+
+5. Avaa selaimessa <http://127.0.0.1:5000>.
+
+Tietokanta luodaan ja esimerkkitiedot lisätään automaattisesti sovelluksen
+ensimmäisen käynnistyksen yhteydessä.
+
 # Kuinka käyttää sovellusta:
 * Jotta voisit lisätä ja muokata omia ideoitasi, sinun täytyy kirjautua sisään painamalla "kirjaudu sisään" nappia.
 * Jos sinulla ei ole vielä käyttäjää, voit luoda sen painamalla "Rekisteröyidy" nappia.

@@ -1,2 +1,12 @@
-__pychache__
-venv
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Local SQLite database
+database.db
+database.db-shm
+database.db-wal
