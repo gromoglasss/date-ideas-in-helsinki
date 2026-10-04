@@ -1,22 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Muokkaa ideaa</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
+{% block title %}Muokkaa ideaa{% endblock %}
+
+{% block content %}
   <h1>Muokkaa ideaa</h1>
 
   <form action="/edit/{{ idea['id'] }}" method="post">
-    <p>Otsikko:</p>
-    <textarea name="title" rows="3" cols="50">{{ idea["title"] }}</textarea>
+    <label for="title">Otsikko:</label>
+    <textarea name="title" id="title" rows="3" cols="50" maxlength="100" required>{{ idea["title"] }}</textarea>
 
-    <p>Kuvaus:</p>
-    <textarea name="message" rows="5" cols="50">{{ idea["description"] }}</textarea>
+    <label for="message">Kuvaus:</label>
+    <textarea name="message" id="message" rows="5" cols="50" maxlength="1000">{{ idea["description"] }}</textarea>
 
-    <br><br>
+    {% for class_title in all_classes %}
+      <label for="class_{{ loop.index }}">{{ class_title }}:</label>
+      <select name="classes" id="class_{{ loop.index }}">
+        <option value="">(valitse)</option>
+        {% for value in all_classes[class_title] %}
+          {% if selected[class_title] == value %}
+            <option value="{{ class_title }}:{{ value }}" selected>{{ value }}</option>
+          {% else %}
+            <option value="{{ class_title }}:{{ value }}">{{ value }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    {% endfor %}
+
+    <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+    <br>
     <input type="submit" value="Tallenna muutokset">
   </form>
-
-</body>
-</html>
+{% endblock %}

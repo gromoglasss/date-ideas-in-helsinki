@@ -1,17 +1,62 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Valinta</title>
-</head>
+{% block title %}{{ idea["title"] }}{% endblock %}
 
-<body>
-  <h2>{{ title }}</h2>
-  <p>
-    Kuvaus: <br/>
-    {{ message }}
-  </p>
-  <img src="{{ url_for('static', filename='uploads/' + filename) }}" width="300">
-</body>
+{% block content %}
+  <div class="idea-page">
+    <h1>{{ idea["title"] }}</h1>
+    <p><strong>Julkaisija:</strong> <a href="/user/{{ idea['user_id'] }}">{{ idea["username"] }}</a></p>
 
-</html>
+    {% if idea["filename"] %}
+      <img src="{{ url_for('static', filename='uploads/' + idea['filename']) }}" alt="Kuva ideasta {{ idea['title'] }}">
+    {% endif %}
+
+    <p>
+      Kuvaus: <br>
+      {{ idea["description"] | show_lines }}
+    </p>
+
+    {% if classes %}
+      <ul>
+        {% for entry in classes %}
+          <li>{{ entry["title"] }}: {{ entry["value"] }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if session.get("user_id") == idea["user_id"] %}
+      <div>
+        <a href="/edit/{{ idea['id'] }}">Muokkaa</a>
+        <form action="/delete/{{ idea['id'] }}" method="post" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+          <input type="submit" value="Poista">
+        </form>
+      </div>
+    {% endif %}
+
+    <h2>Kommentit</h2>
+    {% for comment in comments %}
+      <div class="comment">
+        <p>
+          <a href="/user/{{ comment['user_id'] }}">{{ comment["username"] }}</a>
+          ({{ comment["sent_at"] }}):
+        </p>
+        <p>{{ comment["content"] | show_lines }}</p>
+      </div>
+    {% else %}
+      <p>Ei vielä kommentteja.</p>
+    {% endfor %}
+
+    {% if session.get("user_id") %}
+      <form action="/comment/{{ idea['id'] }}" method="post">
+        <label for="content">Uusi kommentti:</label>
+        <textarea name="content" id="content" rows="4" cols="50" maxlength="500" required></textarea>
+        <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+        <br>
+        <input type="submit" value="Lähetä kommentti">
+      </form>
+    {% else %}
+      <p><a href="/login">Kirjaudu sisään</a> kommentoidaksesi.</p>
+    {% endif %}
+  </div>
+{% endblock %}

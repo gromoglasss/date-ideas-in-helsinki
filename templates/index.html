@@ -1,53 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Ideat</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
+{% block title %}Ideat{% endblock %}
+
+{% block content %}
   <h1>Ideat</h1>
 
   {% if session.get("username") %}
-    <p>Kirjautunut käyttäjänä: {{ session["username"] }}</p>
-    <a href="/logout">Kirjaudu ulos</a>
-  {% else %}
-    <a href="/login">Kirjaudu sisään</a>
-    <a href="/register">Rekisteröidy</a>
+    <p>Kirjautunut käyttäjänä: <a href="/user/{{ session['user_id'] }}">{{ session["username"] }}</a></p>
   {% endif %}
 
-  <br><br>
-
-  <a href="/temp">Lisää uusi idea</a>
-
-  <hr>
-
-  <form action="/" method="get">
-    <input type="text" name="q" placeholder="Hae ideoita" value="{{ q }}">
+  <form action="/" method="get" class="search">
+    <label for="q">Hae ideoita:</label>
+    <input type="text" name="q" id="q" value="{{ q }}">
     <input type="submit" value="Hae">
   </form>
 
-  <hr>
-
   {% for idea in ideas %}
-    <div style="margin-bottom: 30px;">
-      <h2>{{ idea["title"] }}</h2>
-      <p><strong>Julkaisija:</strong> {{ idea["username"] }}</p>
-      <p>{{ idea["description"] }}</p>
+    <div class="idea">
+      <h2><a href="/idea/{{ idea['id'] }}">{{ idea["title"] }}</a></h2>
+      <p><strong>Julkaisija:</strong> <a href="/user/{{ idea['user_id'] }}">{{ idea["username"] }}</a></p>
+      <p>{{ idea["description"] | show_lines }}</p>
+      <p><a href="/idea/{{ idea['id'] }}">Kommentit ({{ idea["comment_count"] }})</a></p>
 
       {% if idea["filename"] %}
-        <img src="{{ url_for('static', filename='uploads/' + idea['filename']) }}" width="300">
+        <img src="{{ url_for('static', filename='uploads/' + idea['filename']) }}" alt="Kuva ideasta {{ idea['title'] }}">
       {% endif %}
 
       {% if session.get("user_id") == idea["user_id"] %}
         <div>
           <a href="/edit/{{ idea['id'] }}">Muokkaa</a>
-          <form action="/delete/{{ idea['id'] }}" method="post" style="display:inline;">
+          <form action="/delete/{{ idea['id'] }}" method="post" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
             <input type="submit" value="Poista">
           </form>
         </div>
       {% endif %}
     </div>
+  {% else %}
+    <p>Ideoita ei löytynyt.</p>
   {% endfor %}
 
-</body>
-</html>
+  {% if page_count > 1 %}
+    <p class="pages">
+      {% if page > 1 %}
+        <a href="/?q={{ q | urlencode }}&amp;page={{ page - 1 }}">&lt;&lt; Edellinen</a>
+      {% endif %}
+      Sivu {{ page }}/{{ page_count }}
+      {% if page < page_count %}
+        <a href="/?q={{ q | urlencode }}&amp;page={{ page + 1 }}">Seuraava &gt;&gt;</a>
+      {% endif %}
+    </p>
+  {% endif %}
+{% endblock %}

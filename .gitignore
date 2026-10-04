@@ -10,3 +10,6 @@ venv/
 database.db
 database.db-shm
 database.db-wal
+
+# Photos uploaded through the app
+static/uploads/*

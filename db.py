@@ -1,8 +1,8 @@
 import sqlite3
-import config
 from werkzeug.security import generate_password_hash
+import config
 
-#esimerkki-ideat
+# example users and ideas for the first start
 def seed_example_data():
     conn = get_connection()
 
@@ -50,8 +50,14 @@ def get_connection():
 def init_db():
     conn = get_connection()
 
-    with open("schema.sql") as f:
+    with open("schema.sql", encoding="utf-8") as f:
         conn.executescript(f.read())
+
+    # the possible classes are added only once
+    class_count = conn.execute("SELECT COUNT(*) FROM classes").fetchone()[0]
+    if class_count == 0:
+        with open("init.sql", encoding="utf-8") as f:
+            conn.executescript(f.read())
 
     conn.commit()
     conn.close()

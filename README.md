@@ -55,9 +55,44 @@ ensimmäisen käynnistyksen yhteydessä.
 * Jotta voisit lisätä ja muokata omia ideoitasi, sinun täytyy kirjautua sisään painamalla "kirjaudu sisään" nappia.
 * Jos sinulla ei ole vielä käyttäjää, voit luoda sen painamalla "Rekisteröyidy" nappia.
 * Voit lisätä omia ideoitasi "Lisää uusi idea" napista painamalla.
-* Sovellus vaatii vain kuvan ja teksti on vapaaehtoinen.
+* Idealle pitää antaa otsikko. Kuva, kuvaus ja luokittelut ovat vapaaehtoisia.
+* Idealle voi valita luokittelut (hinta, paikka ja vuodenaika).
 * Pääset muokkaamaan ja poistamaan omat ideasi päänäkymästä.
 * Voit etsiä ideoita hakukentän avulla.
+* Idean otsikkoa painamalla pääset idean sivulle, jossa voit lukea ja kirjoittaa kommentteja.
+* Käyttäjän nimeä painamalla näet käyttäjän sivun, jossa on käyttäjän tilastot ja ideat.
 * Voit kirjautua ulos halutessasi painamalla "kirjaudu ulos" nappia. 
+
+## Sovelluksen testaus suurella tietomäärällä
+
+Sovellusta testattiin suurella tietomäärällä tiedoston `seed.py` avulla.
+Skripti luo tietokantaan 1000 käyttäjää, 100 000 ideaa ja miljoona kommenttia.
+Huom: skripti poistaa kaikki aiemmat tiedot tietokannasta.
+
+```bash
+python seed.py
+```
+
+Sivujen latausajat (keskiarvo viidestä latauksesta):
+
+| Sivu | Ilman indeksejä | Indeksien kanssa |
+| --- | --- | --- |
+| Etusivu, sivu 1 | 1,75 s | 0,005 s |
+| Etusivu, sivu 5000 | 1,75 s | 0,08 s |
+| Etusivu, sivu 10000 (viimeinen) | 1,81 s | 0,15 s |
+| Haku | 1,75 s | 0,02 s |
+| Idean sivu | 0,05 s | 0,001 s |
+| Käyttäjän sivu | 0,06 s | 0,001 s |
+
+Etusivulla näytetään jokaisen idean kommenttien määrä, joten ilman indeksiä
+tietokannan pitää käydä läpi kaikki miljoona kommenttia jokaisella latauksella.
+Tiedostossa `schema.sql` olevat indeksit (esim. `comments (idea_id)`) nopeuttavat
+tätä huomattavasti. Etusivu näyttää ideat sivuittain (10 ideaa per sivu), joten
+sivu pysyy nopeana, vaikka ideoita on paljon. Myöhemmät sivut ovat hieman
+hitaampia, koska `OFFSET` joutuu ohittamaan aiemmat rivit.
+
+## Pylint
+
+Pylint-raportti löytyy tiedostosta [pylint-report.md](pylint-report.md).
 
 (en suorittanut kurssia viime periodissa niin jatkan samaa projektia tässä periodissa)

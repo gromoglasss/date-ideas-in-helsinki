@@ -1,0 +1,130 @@
+body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.5;
+    color: #1d2a33;
+    background-color: #eef3f6;
+}
+
+a {
+    color: #1b5e8c;
+}
+
+header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5em 1.5em;
+    padding: 1em 1.5em;
+    background-color: #1b5e8c;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+}
+
+header a:hover {
+    text-decoration: underline;
+}
+
+.site-name {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+nav a {
+    margin-left: 1em;
+}
+
+main {
+    max-width: 44em;
+    margin: 0 auto;
+    padding: 1em 1.5em 3em;
+}
+
+h1, h2, h3 {
+    font-family: Verdana, Arial, sans-serif;
+    line-height: 1.2;
+}
+
+.idea {
+    margin: 1.5em 0;
+    padding: 0.5em 1.2em 1em;
+    background-color: white;
+    border-left: 5px solid #1b5e8c;
+}
+
+.idea img, .idea-page img {
+    display: block;
+    max-width: 100%;
+    max-height: 22em;
+    margin: 0.5em 0;
+}
+
+.info {
+    padding: 0.6em 1em;
+    background-color: #fff4d6;
+    border: 1px solid #e0b84f;
+}
+
+label {
+    display: block;
+    margin-top: 0.8em;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="password"], textarea, select {
+    max-width: 100%;
+    padding: 0.3em;
+    font: inherit;
+    border: 1px solid #9aaab5;
+}
+
+input[type="submit"] {
+    margin-top: 1em;
+    padding: 0.4em 1em;
+    font: inherit;
+    color: white;
+    background-color: #1b5e8c;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #144669;
+}
+
+.search label {
+    display: inline;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.inline-form input[type="submit"] {
+    margin-top: 0;
+    padding: 0.1em 0.6em;
+    background-color: #a33a2c;
+}
+
+.comment {
+    margin: 0.8em 0;
+    padding: 0.2em 1em;
+    background-color: white;
+    border: 1px solid #c9d6de;
+}
+
+.comment p {
+    margin: 0.4em 0;
+}
+
+.pages {
+    text-align: center;
+}
+
+.pages a {
+    margin: 0 1em;
+}

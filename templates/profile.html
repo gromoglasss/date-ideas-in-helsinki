@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ user["username"] }}{% endblock %}
+
+{% block content %}
+  <h1>Käyttäjä {{ user["username"] }}</h1>
+
+  <h2>Tilastot</h2>
+  <ul>
+    <li>Ideoita: {{ stats["idea_count"] }}</li>
+    <li>Kirjoitettuja kommentteja: {{ stats["comment_count"] }}</li>
+  </ul>
+
+  <h2>Käyttäjän ideat</h2>
+  {% if ideas %}
+    <ul>
+      {% for idea in ideas %}
+        <li><a href="/idea/{{ idea['id'] }}">{{ idea["title"] }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Käyttäjä ei ole vielä lisännyt ideoita.</p>
+  {% endif %}
+{% endblock %}

@@ -1,25 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Lisää idea</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
+{% block title %}Lisää idea{% endblock %}
+
+{% block content %}
   <h1>Lisää idea</h1>
 
   <form action="/add" method="post" enctype="multipart/form-data">
-    <p>Lisää kuva:</p>
-    <input type="file" name="photo" accept="image/*">
+    <label for="photo">Lisää kuva:</label>
+    <input type="file" name="photo" id="photo" accept=".jpg,.jpeg,.png,.gif,.webp">
 
-    <p>Otsikko:</p>
-    <textarea name="title" rows="3" cols="50"></textarea>
+    <label for="title">Otsikko:</label>
+    <textarea name="title" id="title" rows="3" cols="50" maxlength="100" required></textarea>
 
-    <p>Kuvaus:</p>
-    <textarea name="message" rows="5" cols="50"></textarea>
+    <label for="message">Kuvaus:</label>
+    <textarea name="message" id="message" rows="5" cols="50" maxlength="1000"></textarea>
 
-    <br><br>
+    {% for class_title in classes %}
+      <label for="class_{{ loop.index }}">{{ class_title }}:</label>
+      <select name="classes" id="class_{{ loop.index }}">
+        <option value="">(valitse)</option>
+        {% for value in classes[class_title] %}
+          <option value="{{ class_title }}:{{ value }}">{{ value }}</option>
+        {% endfor %}
+      </select>
+    {% endfor %}
+
+    <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+    <br>
     <input type="submit" value="Lähetä">
   </form>
-
-</body>
-</html>
+{% endblock %}

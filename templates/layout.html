@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} - Treffi-ideat Helsingissä</title>
+  <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+  <header>
+    <a class="site-name" href="/">Treffi-ideat Helsingissä</a>
+    <nav>
+      <a href="/">Ideat</a>
+      {% if session.get("user_id") %}
+        <a href="/temp">Lisää uusi idea</a>
+        <a href="/user/{{ session['user_id'] }}">Oma sivu</a>
+        <a href="/logout">Kirjaudu ulos</a>
+      {% else %}
+        <a href="/login">Kirjaudu sisään</a>
+        <a href="/register">Rekisteröidy</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% for message in get_flashed_messages() %}
+      <p class="info">{{ message }}</p>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

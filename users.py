@@ -45,3 +45,41 @@ def get_username(user_id):
     if user:
         return user["username"]
     return None
+
+def get_user(user_id):
+    conn = get_connection()
+
+    user = conn.execute(
+        "SELECT id, username FROM users WHERE id = ?",
+        (user_id,)
+    ).fetchone()
+
+    conn.close()
+    return user
+
+def get_ideas(user_id):
+    conn = get_connection()
+
+    ideas = conn.execute(
+        "SELECT id, title FROM ideas WHERE user_id = ? ORDER BY id DESC",
+        (user_id,)
+    ).fetchall()
+
+    conn.close()
+    return ideas
+
+def get_stats(user_id):
+    conn = get_connection()
+
+    idea_count = conn.execute(
+        "SELECT COUNT(id) FROM ideas WHERE user_id = ?",
+        (user_id,)
+    ).fetchone()[0]
+
+    comment_count = conn.execute(
+        "SELECT COUNT(id) FROM comments WHERE user_id = ?",
+        (user_id,)
+    ).fetchone()[0]
+
+    conn.close()
+    return {"idea_count": idea_count, "comment_count": comment_count}
