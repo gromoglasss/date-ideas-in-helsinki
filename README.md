@@ -3,10 +3,10 @@
 * Käyttäjä pystyy luomaan tunnuksen ja kirjautumaan sisään sovellukseen.
 * Käyttäjä pystyy lisäämään sovellukseen treffi-ideoita. Lisäksi käyttäjä pystyy muokkaamaan ja poistamaan lisäämiään ideoitaan.
 * Käyttäjä näkee sovellukseen lisätyt treffi-ideat. Käyttäjä näkee sekä itse lisäämänsä että muiden käyttäjien lisäämät ideat.
-* Kättäjä pystyy etsimään treffi-ideoita hakusanalla tai muulla perusteella. Käyttäjä pystyy hakemaan sekä itse lisäämiään että muiden käyttäjien lisäämiä ideoita.
+* Käyttäjä pystyy etsimään treffi-ideoita hakusanalla tai muulla perusteella. Käyttäjä pystyy hakemaan sekä itse lisäämiään että muiden käyttäjien lisäämiä ideoita.
 * Sovelluksessa on käyttäjäsivut, jotka näyttävät jokaisesta käyttäjästä tilastoja ja käyttäjän lisäämät ideat.
-* Käyttäjä pystyy valitsemaan idealle yhden tai useamman luokittelun. Mahdolliset luokat ovat tietokannassa.
-* Sovelluksessa on pääasiallisen tietokohteen lisäksi toissijainen idea, joka täydentää pääasiallista ideaa. Käyttäjä pystyy lisäämään toissijaisia ideoita omiin ja muiden käyttäjien ideoihin liittyen.
+* Käyttäjä pystyy valitsemaan idealle luokitteluja (hinta, paikka ja vuodenaika). Jokaisen luokittelun kohdalla voi valita yhden tai useamman vaihtoehdon. Mahdolliset luokat ovat tietokannassa.
+* Sovelluksessa on pääasiallisen tietokohteen (idea) lisäksi toissijainen tietokohde (kommentti), joka täydentää ideaa. Käyttäjä pystyy kommentoimaan sekä omia että muiden käyttäjien ideoita.
 
 ## Sovelluksen käynnistäminen paikallisesti
 
@@ -48,16 +48,21 @@ Tarvitset Python 3:n ja Gitin.
 
 5. Avaa selaimessa <http://127.0.0.1:5000>.
 
-Tietokanta luodaan ja esimerkkitiedot lisätään automaattisesti sovelluksen
-ensimmäisen käynnistyksen yhteydessä.
+Tietokanta luodaan tiedostojen `schema.sql` ja `init.sql` perusteella
+automaattisesti sovelluksen ensimmäisen käynnistyksen yhteydessä. Tietokannassa
+ei ole aluksi käyttäjiä eikä ideoita, joten luo ensin tunnus.
+
+Jos sinulla on sovelluksen vanhemmalla versiolla luotu `database.db`, poista se
+ennen käynnistystä, koska taulun `idea_classes` rakenne on muuttunut.
 
 # Kuinka käyttää sovellusta:
 * Jotta voisit lisätä ja muokata omia ideoitasi, sinun täytyy kirjautua sisään painamalla "kirjaudu sisään" nappia.
-* Jos sinulla ei ole vielä käyttäjää, voit luoda sen painamalla "Rekisteröyidy" nappia.
+* Jos sinulla ei ole vielä käyttäjää, voit luoda sen painamalla "Rekisteröidy" nappia.
 * Voit lisätä omia ideoitasi "Lisää uusi idea" napista painamalla.
 * Idealle pitää antaa otsikko. Kuva, kuvaus ja luokittelut ovat vapaaehtoisia.
-* Idealle voi valita luokittelut (hinta, paikka ja vuodenaika).
-* Pääset muokkaamaan ja poistamaan omat ideasi päänäkymästä.
+* Idealle voi valita luokittelut (hinta, paikka ja vuodenaika). Jokaisesta luokittelusta voi valita useamman vaihtoehdon.
+* Jos lomakkeessa on virheitä, sovellus näyttää kaikki virheet kerralla ja täytetyt tiedot säilyvät lomakkeessa.
+* Pääset muokkaamaan ja poistamaan omat ideasi päänäkymästä tai idean sivulta. Poisto pitää vielä vahvistaa.
 * Voit etsiä ideoita hakukentän avulla.
 * Idean otsikkoa painamalla pääset idean sivulle, jossa voit lukea ja kirjoittaa kommentteja.
 * Käyttäjän nimeä painamalla näet käyttäjän sivun, jossa on käyttäjän tilastot ja ideat.
