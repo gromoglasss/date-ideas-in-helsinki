@@ -1,63 +1,40 @@
 import sqlite3
-from werkzeug.security import generate_password_hash
+from flask import g
 import config
 
-# example users and ideas for the first start
-def seed_example_data():
-    conn = get_connection()
-
-    user_count = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-    idea_count = conn.execute("SELECT COUNT(*) FROM ideas").fetchone()[0]
-
-    if user_count == 0 and idea_count == 0:
-        conn.execute(
-            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-            ("maija", generate_password_hash("salasana1"))
-        )
-        conn.execute(
-            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-            ("pekka", generate_password_hash("salasana2"))
-        )
-
-        maija_id = conn.execute(
-            "SELECT id FROM users WHERE username = ?",
-            ("maija",)
-        ).fetchone()[0]
-
-        pekka_id = conn.execute(
-            "SELECT id FROM users WHERE username = ?",
-            ("pekka",)
-        ).fetchone()[0]
-
-        conn.execute(
-            "INSERT INTO ideas (title, description, filename, user_id) VALUES (?, ?, ?, ?)",
-            ("Ensimmäinen idea", "Tämä on esimerkkidea.", "", maija_id)
-        )
-
-        conn.execute(
-            "INSERT INTO ideas (title, description, filename, user_id) VALUES (?, ?, ?, ?)",
-            ("Toinen idea", "Tässä on toinen esimerkkidea.", "", pekka_id)
-        )
-
-    conn.commit()
-    conn.close()
-
 def get_connection():
-    conn = sqlite3.connect(config.database_file)
-    conn.row_factory = sqlite3.Row
-    return conn
+    con = sqlite3.connect(config.database_file)
+    con.execute("PRAGMA foreign_keys = ON")
+    con.row_factory = sqlite3.Row
+    return con
+
+def execute(sql, params=[]):
+    con = get_connection()
+    result = con.execute(sql, params)
+    con.commit()
+    g.last_insert_id = result.lastrowid
+    con.close()
+
+def last_insert_id():
+    return g.last_insert_id
+
+def query(sql, params=[]):
+    con = get_connection()
+    result = con.execute(sql, params).fetchall()
+    con.close()
+    return result
+
+def execute_file(filename):
+    with open(filename, encoding="utf-8") as file:
+        sql = file.read()
+    con = get_connection()
+    con.executescript(sql)
+    con.close()
 
 def init_db():
-    conn = get_connection()
-
-    with open("schema.sql", encoding="utf-8") as f:
-        conn.executescript(f.read())
+    execute_file("schema.sql")
 
     # the possible classes are added only once
-    class_count = conn.execute("SELECT COUNT(*) FROM classes").fetchone()[0]
+    class_count = query("SELECT COUNT(id) FROM classes")[0][0]
     if class_count == 0:
-        with open("init.sql", encoding="utf-8") as f:
-            conn.executescript(f.read())
-
-    conn.commit()
-    conn.close()
+        execute_file("init.sql")

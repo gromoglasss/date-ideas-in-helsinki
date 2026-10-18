@@ -18,9 +18,8 @@ MAX_PHOTO_SIZE = 2 * 1024 * 1024
 PAGE_SIZE = 10
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-# create the tables and add example data if the database is empty
+# create the tables and add the classes if the database is new
 db.init_db()
-db.seed_example_data()
 
 
 @app.template_filter()

@@ -1,85 +1,33 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from db import get_connection
+import db
 
 def create_user(username, password):
-    conn = get_connection()
-
     password_hash = generate_password_hash(password)
-
-    conn.execute(
-        "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-        (username, password_hash)
-    )
-
-    conn.commit()
-    conn.close()
+    sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+    db.execute(sql, [username, password_hash])
 
 def check_login(username, password):
-    conn = get_connection()
-
-    user = conn.execute(
-        "SELECT id, password_hash FROM users WHERE username = ?",
-        (username,)
-    ).fetchone()
-
-    conn.close()
-
-    if not user:
+    sql = "SELECT id, password_hash FROM users WHERE username = ?"
+    result = db.query(sql, [username])
+    if not result:
         return None
 
+    user = result[0]
     if check_password_hash(user["password_hash"], password):
         return user["id"]
 
     return None
 
-def get_username(user_id):
-    conn = get_connection()
-
-    user = conn.execute(
-        "SELECT username FROM users WHERE id = ?",
-        (user_id,)
-    ).fetchone()
-
-    conn.close()
-
-    if user:
-        return user["username"]
-    return None
-
 def get_user(user_id):
-    conn = get_connection()
-
-    user = conn.execute(
-        "SELECT id, username FROM users WHERE id = ?",
-        (user_id,)
-    ).fetchone()
-
-    conn.close()
-    return user
+    sql = "SELECT id, username FROM users WHERE id = ?"
+    result = db.query(sql, [user_id])
+    return result[0] if result else None
 
 def get_ideas(user_id):
-    conn = get_connection()
-
-    ideas = conn.execute(
-        "SELECT id, title FROM ideas WHERE user_id = ? ORDER BY id DESC",
-        (user_id,)
-    ).fetchall()
-
-    conn.close()
-    return ideas
+    sql = "SELECT id, title FROM ideas WHERE user_id = ? ORDER BY id DESC"
+    return db.query(sql, [user_id])
 
 def get_stats(user_id):
-    conn = get_connection()
-
-    idea_count = conn.execute(
-        "SELECT COUNT(id) FROM ideas WHERE user_id = ?",
-        (user_id,)
-    ).fetchone()[0]
-
-    comment_count = conn.execute(
-        "SELECT COUNT(id) FROM comments WHERE user_id = ?",
-        (user_id,)
-    ).fetchone()[0]
-
-    conn.close()
-    return {"idea_count": idea_count, "comment_count": comment_count}
+    sql = """SELECT (SELECT COUNT(id) FROM ideas WHERE user_id = ?) AS idea_count,
+                    (SELECT COUNT(id) FROM comments WHERE user_id = ?) AS comment_count"""
+    return db.query(sql, [user_id, user_id])[0]
