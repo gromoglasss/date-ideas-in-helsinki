@@ -13,17 +13,14 @@
     <textarea name="message" id="message" rows="5" cols="50" maxlength="1000">{{ idea["description"] }}</textarea>
 
     {% for class_title in all_classes %}
-      <label for="class_{{ loop.index }}">{{ class_title }}:</label>
-      <select name="classes" id="class_{{ loop.index }}">
-        <option value="">(valitse)</option>
-        {% for value in all_classes[class_title] %}
-          {% if selected[class_title] == value %}
-            <option value="{{ class_title }}:{{ value }}" selected>{{ value }}</option>
-          {% else %}
-            <option value="{{ class_title }}:{{ value }}">{{ value }}</option>
-          {% endif %}
+      <fieldset class="choices">
+        <legend>{{ class_title }}</legend>
+        {% for option in all_classes[class_title] %}
+          <input type="checkbox" name="classes" id="class_{{ option['id'] }}" value="{{ option['id'] }}"
+                 {% if option["id"] in selected %}checked{% endif %}>
+          <label for="class_{{ option['id'] }}">{{ option["value"] }}</label>
         {% endfor %}
-      </select>
+      </fieldset>
     {% endfor %}
 
     <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">

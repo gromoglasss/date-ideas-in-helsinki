@@ -22,8 +22,7 @@ CREATE TABLE IF NOT EXISTS classes (
 CREATE TABLE IF NOT EXISTS idea_classes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     idea_id INTEGER REFERENCES ideas,
-    title TEXT,
-    value TEXT
+    class_id INTEGER REFERENCES classes
 );
 
 CREATE TABLE IF NOT EXISTS comments (

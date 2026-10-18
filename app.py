@@ -46,23 +46,19 @@ def check_idea_form(title, description):
     return True
 
 
-def get_selected_classes():
-    all_classes = ideas.get_all_classes()
+def get_selected_classes(all_classes):
+    valid_ids = []
+    for options in all_classes.values():
+        for option in options:
+            valid_ids.append(str(option["id"]))
 
-    classes = []
-    for entry in request.form.getlist("classes"):
-        if not entry:
-            continue
-        parts = entry.split(":")
-        if len(parts) != 2:
+    class_ids = []
+    for class_id in request.form.getlist("classes"):
+        if class_id not in valid_ids:
             abort(403)
-        class_title, class_value = parts
-        if class_title not in all_classes:
-            abort(403)
-        if class_value not in all_classes[class_title]:
-            abort(403)
-        classes.append((class_title, class_value))
-    return classes
+        if int(class_id) not in class_ids:
+            class_ids.append(int(class_id))
+    return class_ids
 
 
 def save_photo(file):
@@ -147,8 +143,8 @@ def show_user(user_id):
 def show_add_form():
     if "user_id" not in session:
         return redirect("/login")
-    classes = ideas.get_all_classes()
-    return render_template("addIdea.html", classes=classes)
+    all_classes = ideas.get_all_classes()
+    return render_template("addIdea.html", all_classes=all_classes, selected=[])
 
 
 @app.route("/add", methods=["POST"])
@@ -161,7 +157,7 @@ def add():
     description = request.form["message"]
     if not check_idea_form(title, description):
         return redirect("/temp")
-    classes = get_selected_classes()
+    class_ids = get_selected_classes(ideas.get_all_classes())
 
     filename = ""
     file = request.files.get("photo")
@@ -170,7 +166,7 @@ def add():
         if not filename:
             return redirect("/temp")
 
-    idea_id = ideas.add_idea(title, description, filename, session["user_id"], classes)
+    idea_id = ideas.add_idea(title, description, filename, session["user_id"], class_ids)
     return redirect("/idea/" + str(idea_id))
 
 
@@ -186,11 +182,10 @@ def edit_idea(idea_id):
     if idea["user_id"] != session["user_id"]:
         abort(403)
 
+    all_classes = ideas.get_all_classes()
+
     if request.method == "GET":
-        all_classes = ideas.get_all_classes()
-        selected = {}
-        for entry in ideas.get_classes(idea_id):
-            selected[entry["title"]] = entry["value"]
+        selected = ideas.get_class_ids(idea_id)
         return render_template("editIdea.html", idea=idea,
                                all_classes=all_classes, selected=selected)
 
@@ -199,9 +194,9 @@ def edit_idea(idea_id):
     description = request.form["message"]
     if not check_idea_form(title, description):
         return redirect("/edit/" + str(idea_id))
-    classes = get_selected_classes()
+    class_ids = get_selected_classes(all_classes)
 
-    ideas.update_idea(idea_id, title, description, classes)
+    ideas.update_idea(idea_id, title, description, class_ids)
     return redirect("/idea/" + str(idea_id))
 
 

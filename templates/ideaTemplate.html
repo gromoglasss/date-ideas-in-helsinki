@@ -19,7 +19,7 @@
     {% if classes %}
       <ul>
         {% for entry in classes %}
-          <li>{{ entry["title"] }}: {{ entry["value"] }}</li>
+          <li>{{ entry["title"] }}: {{ entry["class_values"] }}</li>
         {% endfor %}
       </ul>
     {% endif %}
