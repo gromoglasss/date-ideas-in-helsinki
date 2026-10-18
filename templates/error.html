@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}Virhe {{ code }}{% endblock %}
+
+{% block content %}
+  <div class="panel narrow">
+    <h1>Virhe {{ code }}</h1>
+    <p>{{ message }}</p>
+    <p><a class="button" href="/">Takaisin etusivulle</a></p>
+  </div>
+{% endblock %}

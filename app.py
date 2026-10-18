@@ -16,6 +16,12 @@ app.config["UPLOAD_FOLDER"] = "static/uploads"
 ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp"]
 MAX_PHOTO_SIZE = 2 * 1024 * 1024
 PAGE_SIZE = 10
+ERROR_MESSAGES = {
+    400: "Lomakkeen tiedot olivat virheelliset.",
+    403: "Sinulla ei ole oikeutta tähän toimintoon.",
+    404: "Etsimääsi sivua ei löytynyt.",
+    405: "Tätä toimintoa ei voi tehdä tällä tavalla.",
+}
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 # create the tables and add the classes if the database is new
@@ -27,6 +33,15 @@ def show_lines(content):
     content = str(markupsafe.escape(content))
     content = content.replace("\n", "<br>")
     return markupsafe.Markup(content)
+
+
+@app.errorhandler(400)
+@app.errorhandler(403)
+@app.errorhandler(404)
+@app.errorhandler(405)
+def show_error(error):
+    message = ERROR_MESSAGES[error.code]
+    return render_template("error.html", code=error.code, message=message), error.code
 
 
 def check_csrf():
