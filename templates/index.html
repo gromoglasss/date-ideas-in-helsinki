@@ -3,51 +3,49 @@
 {% block title %}Ideat{% endblock %}
 
 {% block content %}
-  <h1>Ideat</h1>
+  <div class="panel">
+    <h1>Ideat</h1>
 
-  {% if session.get("username") %}
-    <p>Kirjautunut käyttäjänä: <a href="/user/{{ session['user_id'] }}">{{ session["username"] }}</a></p>
-  {% endif %}
-
-  <form action="/" method="get" class="search">
-    <label for="q">Hae ideoita:</label>
-    <input type="text" name="q" id="q" value="{{ q }}">
-    <input type="submit" value="Hae">
-  </form>
+    <form action="/" method="get" class="search">
+      <label for="q">Hae ideoita:</label>
+      <input type="text" name="q" id="q" value="{{ q }}">
+      <input type="submit" value="Hae">
+    </form>
+  </div>
 
   {% for idea in ideas %}
-    <div class="idea">
+    <div class="idea panel">
       <h2><a href="/idea/{{ idea['id'] }}">{{ idea["title"] }}</a></h2>
-      <p><strong>Julkaisija:</strong> <a href="/user/{{ idea['user_id'] }}">{{ idea["username"] }}</a></p>
-      <p>{{ idea["description"] | show_lines }}</p>
-      <p><a href="/idea/{{ idea['id'] }}">Kommentit ({{ idea["comment_count"] }})</a></p>
+      <p class="meta">
+        Julkaisija: <a href="/user/{{ idea['user_id'] }}">{{ idea["username"] }}</a>
+        &middot; <a href="/idea/{{ idea['id'] }}">Kommentit ({{ idea["comment_count"] }})</a>
+      </p>
 
       {% if idea["filename"] %}
         <img src="{{ url_for('static', filename='uploads/' + idea['filename']) }}" alt="Kuva ideasta {{ idea['title'] }}">
       {% endif %}
 
+      <p>{{ idea["description"] | show_lines }}</p>
+
       {% if session.get("user_id") == idea["user_id"] %}
-        <div>
-          <a href="/edit/{{ idea['id'] }}">Muokkaa</a>
-          <form action="/delete/{{ idea['id'] }}" method="post" class="inline-form">
-            <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
-            <input type="submit" value="Poista">
-          </form>
-        </div>
+        <p class="actions">
+          <a class="button" href="/edit_idea/{{ idea['id'] }}">Muokkaa</a>
+          <a class="button danger" href="/delete_idea/{{ idea['id'] }}">Poista</a>
+        </p>
       {% endif %}
     </div>
   {% else %}
-    <p>Ideoita ei löytynyt.</p>
+    <p class="panel">Ideoita ei löytynyt.</p>
   {% endfor %}
 
   {% if page_count > 1 %}
     <p class="pages">
       {% if page > 1 %}
-        <a href="/?q={{ q | urlencode }}&amp;page={{ page - 1 }}">&lt;&lt; Edellinen</a>
+        <a class="button" href="/?q={{ q | urlencode }}&amp;page={{ page - 1 }}">&lt;&lt; Edellinen</a>
       {% endif %}
-      Sivu {{ page }}/{{ page_count }}
+      <span>Sivu {{ page }}/{{ page_count }}</span>
       {% if page < page_count %}
-        <a href="/?q={{ q | urlencode }}&amp;page={{ page + 1 }}">Seuraava &gt;&gt;</a>
+        <a class="button" href="/?q={{ q | urlencode }}&amp;page={{ page + 1 }}">Seuraava &gt;&gt;</a>
       {% endif %}
     </p>
   {% endif %}

@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}Poista idea{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h1>Poista idea</h1>
+    <p>Haluatko varmasti poistaa idean <strong>{{ idea["title"] }}</strong>? Myös idean kommentit poistetaan.</p>
+
+    <form action="/delete_idea/{{ idea['id'] }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+      <input type="submit" name="delete" value="Poista" class="danger">
+      <input type="submit" name="cancel" value="Peruuta" class="secondary">
+    </form>
+  </div>
+{% endblock %}

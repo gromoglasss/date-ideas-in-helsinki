@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}Lisää idea{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h1>Lisää idea</h1>
+
+    <form action="/new_idea" method="post" enctype="multipart/form-data">
+      <label for="title">Otsikko:</label>
+      <input type="text" name="title" id="title" maxlength="100" value="{{ filled.title }}" required>
+
+      <label for="description">Kuvaus:</label>
+      <textarea name="description" id="description" rows="6" cols="50" maxlength="1000">{{ filled.description }}</textarea>
+
+      <label for="photo">Kuva (jpg, png, gif tai webp, enintään 2 Mt):</label>
+      <input type="file" name="photo" id="photo" accept=".jpg,.jpeg,.png,.gif,.webp">
+
+      {% for class_title in all_classes %}
+        <fieldset class="choices">
+          <legend>{{ class_title }}</legend>
+          {% for option in all_classes[class_title] %}
+            <input type="checkbox" name="classes" id="class_{{ option['id'] }}" value="{{ option['id'] }}"
+                   {% if option["id"] in selected %}checked{% endif %}>
+            <label for="class_{{ option['id'] }}">{{ option["value"] }}</label>
+          {% endfor %}
+        </fieldset>
+      {% endfor %}
+
+      <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+      <input type="submit" value="Lähetä">
+    </form>
+  </div>
+{% endblock %}

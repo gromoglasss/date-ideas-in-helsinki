@@ -98,10 +98,16 @@ def save_photo(extension, data):
     return filename
 
 
+def delete_photo(filename):
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    if filename and os.path.exists(path):
+        os.remove(path)
+
+
 def render_idea_page(idea, comment):
     classes = ideas.get_classes(idea["id"])
     comments = ideas.get_comments(idea["id"])
-    return render_template("ideaTemplate.html", idea=idea, classes=classes,
+    return render_template("show_idea.html", idea=idea, classes=classes,
                            comments=comments, comment=comment)
 
 
@@ -130,24 +136,24 @@ def show_idea(idea_id):
     return render_idea_page(idea, "")
 
 
-@app.route("/comment/<int:idea_id>", methods=["POST"])
-def add_comment(idea_id):
+@app.route("/new_comment", methods=["POST"])
+def new_comment():
     if "user_id" not in session:
         return redirect("/login")
     check_csrf()
 
-    idea = ideas.get_idea(idea_id)
+    idea = ideas.get_idea(request.form["idea_id"])
     if not idea:
-        abort(404)
+        abort(403)
 
     content = request.form["content"]
     if not content.strip() or len(content) > 500:
         flash("VIRHE: kommentin pituus on 1-500 merkkiä", "error")
         return render_idea_page(idea, content)
 
-    ideas.add_comment(idea_id, session["user_id"], content)
+    ideas.add_comment(idea["id"], session["user_id"], content)
     flash("Kommentti lisätty")
-    return redirect("/idea/" + str(idea_id))
+    return redirect("/idea/" + str(idea["id"]))
 
 
 @app.route("/user/<int:user_id>")
@@ -158,27 +164,22 @@ def show_user(user_id):
 
     user_ideas = users.get_ideas(user_id)
     stats = users.get_stats(user_id)
-    return render_template("profile.html", user=user, ideas=user_ideas, stats=stats)
+    return render_template("show_user.html", user=user, ideas=user_ideas, stats=stats)
 
 
-@app.route("/temp")
-def show_add_form():
+@app.route("/new_idea", methods=["GET", "POST"])
+def new_idea():
     if "user_id" not in session:
         return redirect("/login")
     all_classes = ideas.get_all_classes()
-    return render_template("addIdea.html", all_classes=all_classes,
-                           filled={}, selected=[])
 
+    if request.method == "GET":
+        return render_template("new_idea.html", all_classes=all_classes,
+                               filled={}, selected=[])
 
-@app.route("/add", methods=["POST"])
-def add():
-    if "user_id" not in session:
-        return redirect("/login")
     check_csrf()
-
-    all_classes = ideas.get_all_classes()
     title = request.form["title"]
-    description = request.form["message"]
+    description = request.form["description"]
     class_ids = get_selected_classes(all_classes)
     errors = check_idea_form(title, description)
 
@@ -195,7 +196,7 @@ def add():
         if extension:
             flash("Huom: valitse kuva uudelleen ennen lähettämistä", "error")
         filled = {"title": title, "description": description}
-        return render_template("addIdea.html", all_classes=all_classes,
+        return render_template("new_idea.html", all_classes=all_classes,
                                filled=filled, selected=class_ids)
 
     filename = ""
@@ -207,7 +208,7 @@ def add():
     return redirect("/idea/" + str(idea_id))
 
 
-@app.route("/edit/<int:idea_id>", methods=["GET", "POST"])
+@app.route("/edit_idea/<int:idea_id>", methods=["GET", "POST"])
 def edit_idea(idea_id):
     if "user_id" not in session:
         return redirect("/login")
@@ -224,19 +225,19 @@ def edit_idea(idea_id):
     if request.method == "GET":
         filled = {"title": idea["title"], "description": idea["description"]}
         selected = ideas.get_class_ids(idea_id)
-        return render_template("editIdea.html", idea=idea, all_classes=all_classes,
+        return render_template("edit_idea.html", idea=idea, all_classes=all_classes,
                                filled=filled, selected=selected)
 
     check_csrf()
     title = request.form["title"]
-    description = request.form["message"]
+    description = request.form["description"]
     class_ids = get_selected_classes(all_classes)
 
     errors = check_idea_form(title, description)
     if errors:
         flash_errors(errors)
         filled = {"title": title, "description": description}
-        return render_template("editIdea.html", idea=idea, all_classes=all_classes,
+        return render_template("edit_idea.html", idea=idea, all_classes=all_classes,
                                filled=filled, selected=class_ids)
 
     ideas.update_idea(idea_id, title, description, class_ids)
@@ -244,7 +245,7 @@ def edit_idea(idea_id):
     return redirect("/idea/" + str(idea_id))
 
 
-@app.route("/delete/<int:idea_id>", methods=["POST"])
+@app.route("/delete_idea/<int:idea_id>", methods=["GET", "POST"])
 def delete_idea(idea_id):
     if "user_id" not in session:
         return redirect("/login")
@@ -256,8 +257,15 @@ def delete_idea(idea_id):
     if idea["user_id"] != session["user_id"]:
         abort(403)
 
+    if request.method == "GET":
+        return render_template("delete_idea.html", idea=idea)
+
     check_csrf()
+    if "delete" not in request.form:
+        return redirect("/idea/" + str(idea_id))
+
     ideas.delete_idea(idea_id)
+    delete_photo(idea["filename"])
     flash("Idea poistettu")
     return redirect("/")
 

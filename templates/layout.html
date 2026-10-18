@@ -8,23 +8,29 @@
 </head>
 <body>
   <header>
-    <a class="site-name" href="/">Treffi-ideat Helsingissä</a>
+    <a class="site-name" href="/"><span class="orb"></span>Treffi-ideat Helsingissä</a>
     <nav>
-      <a href="/">Ideat</a>
-      {% if session.get("user_id") %}
-        <a href="/temp">Lisää uusi idea</a>
-        <a href="/user/{{ session['user_id'] }}">Oma sivu</a>
-        <a href="/logout">Kirjaudu ulos</a>
-      {% else %}
-        <a href="/login">Kirjaudu sisään</a>
-        <a href="/register">Rekisteröidy</a>
-      {% endif %}
+      <ul>
+        <li><a href="/">Ideat</a></li>
+        {% if session.get("user_id") %}
+          <li><a href="/new_idea">Lisää uusi idea</a></li>
+          <li><a href="/user/{{ session['user_id'] }}">Oma sivu</a></li>
+          <li><a href="/logout">Kirjaudu ulos</a></li>
+        {% else %}
+          <li><a href="/login">Kirjaudu sisään</a></li>
+          <li><a href="/register">Rekisteröidy</a></li>
+        {% endif %}
+      </ul>
     </nav>
   </header>
 
   <main>
+    {% if session.get("username") %}
+      <p class="logged-in">Kirjautunut käyttäjänä <a href="/user/{{ session['user_id'] }}">{{ session["username"] }}</a></p>
+    {% endif %}
+
     {% for category, message in get_flashed_messages(with_categories=true) %}
-      <p class="info {{ category }}">{{ message }}</p>
+      <p class="flash {{ category }}">{{ message }}</p>
     {% endfor %}
 
     {% block content %}{% endblock %}

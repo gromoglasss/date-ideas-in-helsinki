@@ -3,19 +3,20 @@
 {% block title %}Rekisteröityminen{% endblock %}
 
 {% block content %}
-  <h1>Luo tunnus</h1>
+  <div class="panel narrow">
+    <h1>Luo tunnus</h1>
 
-  <form action="/register" method="post">
-    <label for="username">Tunnus:</label>
-    <input type="text" name="username" id="username" maxlength="20" value="{{ filled.username }}" required>
+    <form action="/register" method="post">
+      <label for="username">Tunnus:</label>
+      <input type="text" name="username" id="username" maxlength="20" value="{{ filled.username }}" required>
 
-    <label for="password1">Salasana:</label>
-    <input type="password" name="password1" id="password1" required>
+      <label for="password1">Salasana:</label>
+      <input type="password" name="password1" id="password1" required>
 
-    <label for="password2">Salasana uudelleen:</label>
-    <input type="password" name="password2" id="password2" required>
+      <label for="password2">Salasana uudelleen:</label>
+      <input type="password" name="password2" id="password2" required>
 
-    <br>
-    <input type="submit" value="Luo tunnus">
-  </form>
+      <input type="submit" value="Luo tunnus">
+    </form>
+  </div>
 {% endblock %}

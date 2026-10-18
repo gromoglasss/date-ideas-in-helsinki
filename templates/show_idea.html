@@ -3,21 +3,18 @@
 {% block title %}{{ idea["title"] }}{% endblock %}
 
 {% block content %}
-  <div class="idea-page">
+  <div class="panel idea-page">
     <h1>{{ idea["title"] }}</h1>
-    <p><strong>Julkaisija:</strong> <a href="/user/{{ idea['user_id'] }}">{{ idea["username"] }}</a></p>
+    <p class="meta">Julkaisija: <a href="/user/{{ idea['user_id'] }}">{{ idea["username"] }}</a></p>
 
     {% if idea["filename"] %}
       <img src="{{ url_for('static', filename='uploads/' + idea['filename']) }}" alt="Kuva ideasta {{ idea['title'] }}">
     {% endif %}
 
-    <p>
-      Kuvaus: <br>
-      {{ idea["description"] | show_lines }}
-    </p>
+    <p>{{ idea["description"] | show_lines }}</p>
 
     {% if classes %}
-      <ul>
+      <ul class="tags">
         {% for entry in classes %}
           <li>{{ entry["title"] }}: {{ entry["class_values"] }}</li>
         {% endfor %}
@@ -25,19 +22,18 @@
     {% endif %}
 
     {% if session.get("user_id") == idea["user_id"] %}
-      <div>
-        <a href="/edit/{{ idea['id'] }}">Muokkaa</a>
-        <form action="/delete/{{ idea['id'] }}" method="post" class="inline-form">
-          <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
-          <input type="submit" value="Poista">
-        </form>
-      </div>
+      <p class="actions">
+        <a class="button" href="/edit_idea/{{ idea['id'] }}">Muokkaa</a>
+        <a class="button danger" href="/delete_idea/{{ idea['id'] }}">Poista</a>
+      </p>
     {% endif %}
+  </div>
 
+  <div class="panel">
     <h2>Kommentit</h2>
     {% for entry in comments %}
       <div class="comment">
-        <p>
+        <p class="meta">
           <a href="/user/{{ entry['user_id'] }}">{{ entry["username"] }}</a>
           ({{ entry["sent_at"] }}):
         </p>
@@ -48,11 +44,11 @@
     {% endfor %}
 
     {% if session.get("user_id") %}
-      <form action="/comment/{{ idea['id'] }}" method="post">
+      <form action="/new_comment" method="post">
         <label for="content">Uusi kommentti:</label>
         <textarea name="content" id="content" rows="4" cols="50" maxlength="500" required>{{ comment }}</textarea>
+        <input type="hidden" name="idea_id" value="{{ idea['id'] }}">
         <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
-        <br>
         <input type="submit" value="Lähetä kommentti">
       </form>
     {% else %}
