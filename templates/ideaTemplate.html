@@ -35,13 +35,13 @@
     {% endif %}
 
     <h2>Kommentit</h2>
-    {% for comment in comments %}
+    {% for entry in comments %}
       <div class="comment">
         <p>
-          <a href="/user/{{ comment['user_id'] }}">{{ comment["username"] }}</a>
-          ({{ comment["sent_at"] }}):
+          <a href="/user/{{ entry['user_id'] }}">{{ entry["username"] }}</a>
+          ({{ entry["sent_at"] }}):
         </p>
-        <p>{{ comment["content"] | show_lines }}</p>
+        <p>{{ entry["content"] | show_lines }}</p>
       </div>
     {% else %}
       <p>Ei vielä kommentteja.</p>
@@ -50,7 +50,7 @@
     {% if session.get("user_id") %}
       <form action="/comment/{{ idea['id'] }}" method="post">
         <label for="content">Uusi kommentti:</label>
-        <textarea name="content" id="content" rows="4" cols="50" maxlength="500" required></textarea>
+        <textarea name="content" id="content" rows="4" cols="50" maxlength="500" required>{{ comment }}</textarea>
         <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
         <br>
         <input type="submit" value="Lähetä kommentti">

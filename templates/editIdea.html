@@ -7,10 +7,10 @@
 
   <form action="/edit/{{ idea['id'] }}" method="post">
     <label for="title">Otsikko:</label>
-    <textarea name="title" id="title" rows="3" cols="50" maxlength="100" required>{{ idea["title"] }}</textarea>
+    <textarea name="title" id="title" rows="3" cols="50" maxlength="100" required>{{ filled.title }}</textarea>
 
     <label for="message">Kuvaus:</label>
-    <textarea name="message" id="message" rows="5" cols="50" maxlength="1000">{{ idea["description"] }}</textarea>
+    <textarea name="message" id="message" rows="5" cols="50" maxlength="1000">{{ filled.description }}</textarea>
 
     {% for class_title in all_classes %}
       <fieldset class="choices">

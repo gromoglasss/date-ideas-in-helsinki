@@ -51,14 +51,27 @@ def check_csrf():
         abort(403)
 
 
+def flash_errors(errors):
+    for error in errors:
+        flash(error, "error")
+
+
 def check_idea_form(title, description):
+    errors = []
     if not title.strip() or len(title) > 100:
-        flash("VIRHE: otsikon pituus on 1-100 merkkiä")
-        return False
+        errors.append("VIRHE: otsikon pituus on 1-100 merkkiä")
     if len(description) > 1000:
-        flash("VIRHE: kuvaus saa olla enintään 1000 merkkiä")
-        return False
-    return True
+        errors.append("VIRHE: kuvaus saa olla enintään 1000 merkkiä")
+    return errors
+
+
+def check_photo(extension, data):
+    errors = []
+    if extension not in ALLOWED_EXTENSIONS:
+        errors.append("VIRHE: kuvan pitää olla jpg, png, gif tai webp")
+    if len(data) > MAX_PHOTO_SIZE:
+        errors.append("VIRHE: kuva on liian suuri (enintään 2 Mt)")
+    return errors
 
 
 def get_selected_classes(all_classes):
@@ -76,23 +89,20 @@ def get_selected_classes(all_classes):
     return class_ids
 
 
-def save_photo(file):
-    extension = os.path.splitext(file.filename)[1].lower()
-    if extension not in ALLOWED_EXTENSIONS:
-        flash("VIRHE: kuvan pitää olla jpg, png, gif tai webp")
-        return None
-
-    data = file.read()
-    if len(data) > MAX_PHOTO_SIZE:
-        flash("VIRHE: kuva on liian suuri (enintään 2 Mt)")
-        return None
-
+def save_photo(extension, data):
     # random name so that uploads can't overwrite each other
     filename = secrets.token_hex(16) + extension
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    with open(filepath, "wb") as f:
-        f.write(data)
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    with open(path, "wb") as file:
+        file.write(data)
     return filename
+
+
+def render_idea_page(idea, comment):
+    classes = ideas.get_classes(idea["id"])
+    comments = ideas.get_comments(idea["id"])
+    return render_template("ideaTemplate.html", idea=idea, classes=classes,
+                           comments=comments, comment=comment)
 
 
 @app.route("/")
@@ -117,11 +127,7 @@ def show_idea(idea_id):
     idea = ideas.get_idea(idea_id)
     if not idea:
         abort(404)
-
-    classes = ideas.get_classes(idea_id)
-    comments = ideas.get_comments(idea_id)
-    return render_template("ideaTemplate.html", idea=idea, classes=classes,
-                           comments=comments)
+    return render_idea_page(idea, "")
 
 
 @app.route("/comment/<int:idea_id>", methods=["POST"])
@@ -136,10 +142,11 @@ def add_comment(idea_id):
 
     content = request.form["content"]
     if not content.strip() or len(content) > 500:
-        flash("VIRHE: kommentin pituus on 1-500 merkkiä")
-        return redirect("/idea/" + str(idea_id))
+        flash("VIRHE: kommentin pituus on 1-500 merkkiä", "error")
+        return render_idea_page(idea, content)
 
     ideas.add_comment(idea_id, session["user_id"], content)
+    flash("Kommentti lisätty")
     return redirect("/idea/" + str(idea_id))
 
 
@@ -159,7 +166,8 @@ def show_add_form():
     if "user_id" not in session:
         return redirect("/login")
     all_classes = ideas.get_all_classes()
-    return render_template("addIdea.html", all_classes=all_classes, selected=[])
+    return render_template("addIdea.html", all_classes=all_classes,
+                           filled={}, selected=[])
 
 
 @app.route("/add", methods=["POST"])
@@ -168,20 +176,34 @@ def add():
         return redirect("/login")
     check_csrf()
 
+    all_classes = ideas.get_all_classes()
     title = request.form["title"]
     description = request.form["message"]
-    if not check_idea_form(title, description):
-        return redirect("/temp")
-    class_ids = get_selected_classes(ideas.get_all_classes())
+    class_ids = get_selected_classes(all_classes)
+    errors = check_idea_form(title, description)
+
+    extension = ""
+    photo_data = b""
+    photo = request.files.get("photo")
+    if photo and photo.filename:
+        extension = os.path.splitext(photo.filename)[1].lower()
+        photo_data = photo.read()
+        errors += check_photo(extension, photo_data)
+
+    if errors:
+        flash_errors(errors)
+        if extension:
+            flash("Huom: valitse kuva uudelleen ennen lähettämistä", "error")
+        filled = {"title": title, "description": description}
+        return render_template("addIdea.html", all_classes=all_classes,
+                               filled=filled, selected=class_ids)
 
     filename = ""
-    file = request.files.get("photo")
-    if file and file.filename:
-        filename = save_photo(file)
-        if not filename:
-            return redirect("/temp")
+    if extension:
+        filename = save_photo(extension, photo_data)
 
     idea_id = ideas.add_idea(title, description, filename, session["user_id"], class_ids)
+    flash("Idea lisätty")
     return redirect("/idea/" + str(idea_id))
 
 
@@ -200,18 +222,25 @@ def edit_idea(idea_id):
     all_classes = ideas.get_all_classes()
 
     if request.method == "GET":
+        filled = {"title": idea["title"], "description": idea["description"]}
         selected = ideas.get_class_ids(idea_id)
-        return render_template("editIdea.html", idea=idea,
-                               all_classes=all_classes, selected=selected)
+        return render_template("editIdea.html", idea=idea, all_classes=all_classes,
+                               filled=filled, selected=selected)
 
     check_csrf()
     title = request.form["title"]
     description = request.form["message"]
-    if not check_idea_form(title, description):
-        return redirect("/edit/" + str(idea_id))
     class_ids = get_selected_classes(all_classes)
 
+    errors = check_idea_form(title, description)
+    if errors:
+        flash_errors(errors)
+        filled = {"title": title, "description": description}
+        return render_template("editIdea.html", idea=idea, all_classes=all_classes,
+                               filled=filled, selected=class_ids)
+
     ideas.update_idea(idea_id, title, description, class_ids)
+    flash("Muutokset tallennettu")
     return redirect("/idea/" + str(idea_id))
 
 
@@ -229,44 +258,45 @@ def delete_idea(idea_id):
 
     check_csrf()
     ideas.delete_idea(idea_id)
+    flash("Idea poistettu")
     return redirect("/")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("register.html", filled={})
 
     username = request.form["username"]
     password1 = request.form["password1"]
     password2 = request.form["password2"]
 
+    errors = []
     if not username.strip() or len(username) > 20:
-        flash("VIRHE: tunnuksen pituus on 1-20 merkkiä")
-        return redirect("/register")
-
+        errors.append("VIRHE: tunnuksen pituus on 1-20 merkkiä")
+    elif users.username_taken(username):
+        errors.append("VIRHE: tunnus on jo varattu")
     if not password1:
-        flash("VIRHE: salasana ei voi olla tyhjä")
-        return redirect("/register")
-
+        errors.append("VIRHE: salasana ei voi olla tyhjä")
     if password1 != password2:
-        flash("VIRHE: salasanat eivät ole samat")
-        return redirect("/register")
+        errors.append("VIRHE: salasanat eivät ole samat")
 
-    try:
-        users.create_user(username, password1)
-    except sqlite3.IntegrityError:
-        flash("VIRHE: tunnus on jo varattu")
-        return redirect("/register")
+    if not errors:
+        try:
+            users.create_user(username, password1)
+            flash("Tunnus luotu, voit nyt kirjautua sisään")
+            return redirect("/login")
+        except sqlite3.IntegrityError:
+            errors.append("VIRHE: tunnus on jo varattu")
 
-    flash("Tunnus luotu, voit nyt kirjautua sisään")
-    return redirect("/login")
+    flash_errors(errors)
+    return render_template("register.html", filled={"username": username})
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", filled={})
 
     username = request.form["username"]
     password = request.form["password"]
@@ -278,11 +308,12 @@ def login():
         session["csrf_token"] = secrets.token_hex(16)
         return redirect("/")
 
-    flash("VIRHE: väärä tunnus tai salasana")
-    return redirect("/login")
+    flash("VIRHE: väärä tunnus tai salasana", "error")
+    return render_template("login.html", filled={"username": username})
 
 
 @app.route("/logout")
 def logout():
     session.clear()
+    flash("Olet kirjautunut ulos")
     return redirect("/")
